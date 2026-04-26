@@ -16,3 +16,4 @@ backend/media/
 # IDE
 .vscode/
 .idea/
+.env
