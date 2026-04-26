@@ -18,12 +18,16 @@
       <p class="text-gray-500">Выберите раздел для работы</p>
 
       <div class="grid grid-cols-2 md:grid-cols-3 gap-4 mt-8">
-        <div v-for="section in sections" :key="section.name"
-          class="bg-white border border-gray-200 rounded-xl p-6 hover:shadow-md transition-shadow cursor-pointer">
+        <router-link
+          v-for="section in sections"
+          :key="section.name"
+          :to="section.to || '#'"
+          class="bg-white border border-gray-200 rounded-xl p-6 hover:shadow-md transition-shadow block"
+        >
           <div class="text-3xl mb-3">{{ section.icon }}</div>
           <h3 class="font-semibold text-gray-800">{{ section.name }}</h3>
           <p class="text-sm text-gray-500 mt-1">{{ section.desc }}</p>
-        </div>
+        </router-link>
       </div>
     </main>
   </div>
@@ -49,11 +53,11 @@ function handleLogout() {
 }
 
 const sections = [
-  { icon: '📅', name: 'Собеседования', desc: 'Календарь и список кандидатов' },
-  { icon: '✍️', name: 'Прописи', desc: 'Ручной поиск в соцсетях' },
-  { icon: '📋', name: 'Анкеты', desc: 'Личные дела сотрудников' },
-  { icon: '✅', name: 'Задачи', desc: 'План на день, неделю, месяц' },
-  { icon: '📢', name: 'Реклама', desc: 'Публикации в соцсетях' },
-  { icon: '📊', name: 'TikTok', desc: 'Статистика эфиров' },
+  { icon: '📅', name: 'Собеседования', desc: 'Календарь и список кандидатов', to: '/interviews' },
+  { icon: '✍️', name: 'Прописи', desc: 'Ручной поиск в соцсетях', to: '/inscriptions' },
+  { icon: '📋', name: 'Анкеты', desc: 'Личные дела сотрудников', to: '#' },
+  { icon: '✅', name: 'Задачи', desc: 'План на день, неделю, месяц', to: '#' },
+  { icon: '📢', name: 'Реклама', desc: 'Публикации в соцсетях', to: '#' },
+  { icon: '📊', name: 'TikTok', desc: 'Статистика эфиров', to: '#' },
 ]
 </script>
