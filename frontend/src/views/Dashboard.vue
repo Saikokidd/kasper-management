@@ -44,7 +44,7 @@ const sections = [
   { icon: '📅', name: 'Собеседования', desc: 'Календарь и список кандидатов', to: '/interviews' },
   { icon: '✍️', name: 'Прописи', desc: 'Ручной поиск в соцсетях', to: '/inscriptions' },
   { icon: '📋', name: 'Анкеты', desc: 'Личные дела сотрудников', to: '/candidates' },
-  { icon: '✅', name: 'Задачи', desc: 'План на день, неделю, месяц', to: '#' },
+  { icon: '✅', name: 'Задачи', desc: 'План на день, неделю, месяц', to: '/tasks' },
   { icon: '📢', name: 'Реклама', desc: 'Публикации в соцсетях', to: '#' },
   { icon: '📊', name: 'TikTok', desc: 'Статистика эфиров', to: '#' },
 ]

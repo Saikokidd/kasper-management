@@ -5,6 +5,7 @@ import Dashboard from '../views/Dashboard.vue'
 import Interviews from '../views/Interviews.vue'
 import Inscriptions from '../views/Inscriptions.vue'
 import Candidates from '../views/Candidates.vue'
+import Tasks from '../views/Tasks.vue'
 
 const routes = [
   { path: '/login', component: Login },
@@ -12,6 +13,7 @@ const routes = [
   { path: '/interviews', component: Interviews, meta: { requiresAuth: true } },
   { path: '/inscriptions', component: Inscriptions, meta: { requiresAuth: true } },
   { path: '/candidates', component: Candidates, meta: { requiresAuth: true } },
+  { path: '/tasks', component: Tasks, meta: { requiresAuth: true } },
 ]
 
 const router = createRouter({
