@@ -4,3 +4,4 @@ from .inscription import Inscription
 from .form_template import FormTemplate
 from .candidate import Candidate
 from .task import Task, TaskTemplate
+from .media_file import MediaFile

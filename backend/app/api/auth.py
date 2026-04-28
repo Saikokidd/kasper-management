@@ -44,3 +44,7 @@ def reset_password(user_id: int, new_password: str, db: Session = Depends(get_db
     user.password_hash = hash_password(new_password)
     db.commit()
     return {"detail": "Пароль сброшен"}
+
+@router.get("/users", response_model=list[UserOut])
+def list_users(db: Session = Depends(get_db), _=Depends(require_manager_or_admin)):
+    return db.query(User).order_by(User.full_name).all()

@@ -7,10 +7,16 @@ export const useTasksStore = defineStore('tasks', {
   state: () => ({
     tasks: [],
     templates: [],
+    users: [],
     loading: false,
   }),
 
   actions: {
+    async fetchUsers() {
+      const res = await axios.get(`${API}/api/auth/users`)
+      this.users = res.data
+    },
+
     async fetchTasks(filters = {}) {
       this.loading = true
       try {
