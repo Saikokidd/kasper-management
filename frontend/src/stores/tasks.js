@@ -1,7 +1,7 @@
 import { defineStore } from 'pinia'
 import axios from 'axios'
 
-const API = 'http://localhost:8000'
+const API = 'http://10.0.0.2:8000'
 
 export const useTasksStore = defineStore('tasks', {
   state: () => ({

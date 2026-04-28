@@ -49,7 +49,7 @@ const props = defineProps({
   entityId: { type: Number, required: true },
 })
 
-const API = 'http://localhost:8000'
+const API = 'http://10.0.0.2:8000'
 const auth = useAuthStore()
 
 const files = ref([])

@@ -4,7 +4,7 @@ from app.database import get_db
 from app.models.user import User
 from app.schemas.user import UserLogin, UserOut, Token, UserCreate
 from app.services.auth import verify_password, hash_password, create_access_token
-from app.api.deps import get_current_user, require_admin
+from app.api.deps import get_current_user, require_admin, require_manager_or_admin
 
 router = APIRouter(prefix="/api/auth", tags=["auth"])
 

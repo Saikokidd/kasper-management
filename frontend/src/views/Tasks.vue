@@ -7,10 +7,9 @@
 
     <main class="max-w-4xl mx-auto px-6 py-8">
 
-      <!-- Вкладки периода -->
       <div class="flex gap-2 mb-6">
         <button v-for="t in periods" :key="t.value" @click="setPeriod(t.value)"
-          :class="period === t.value ? 'bg-blue-600 text-white' : 'bg-white text-gray-600 border border-gray-200'"
+          :class="period === t.value && tab !== 'templates' ? 'bg-blue-600 text-white' : 'bg-white text-gray-600 border border-gray-200'"
           class="px-4 py-2 rounded-lg text-sm font-medium transition-colors">
           {{ t.label }}
         </button>
@@ -21,11 +20,8 @@
         </button>
       </div>
 
-      <!-- ЗАДАЧИ -->
       <template v-if="tab !== 'templates'">
-
         <div class="flex gap-3 mb-6">
-          <!-- Фильтр статуса -->
           <select v-model="statusFilter" @change="loadTasks"
             class="px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
             <option value="">Все статусы</option>
@@ -39,7 +35,6 @@
           </button>
         </div>
 
-        <!-- Форма создания задачи -->
         <div v-if="showTaskForm" class="bg-white border border-gray-200 rounded-xl p-6 mb-6">
           <h2 class="font-semibold text-gray-800 mb-4">Новая задача</h2>
           <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -68,9 +63,12 @@
                 class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" />
             </div>
             <div>
-              <label class="block text-sm font-medium text-gray-700 mb-1">Назначить (ID пользователя) *</label>
-              <input v-model.number="taskForm.assigned_to_id" type="number"
-                class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" />
+              <label class="block text-sm font-medium text-gray-700 mb-1">Назначить *</label>
+              <select v-model.number="taskForm.assigned_to_id"
+                class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                <option :value="null">— Выберите сотрудника —</option>
+                <option v-for="u in store.users" :key="u.id" :value="u.id">{{ u.full_name }} ({{ u.role }})</option>
+              </select>
             </div>
             <div>
               <label class="block text-sm font-medium text-gray-700 mb-1">Шаблон (опц.)</label>
@@ -94,7 +92,6 @@
           </div>
         </div>
 
-        <!-- Список задач -->
         <div v-if="store.loading" class="text-center py-12 text-gray-400">Загрузка...</div>
 
         <div v-else-if="store.tasks.length" class="space-y-3">
@@ -104,7 +101,8 @@
             <div class="flex items-start justify-between gap-4">
               <div class="flex-1">
                 <div class="flex items-center gap-2 flex-wrap">
-                  <h3 class="font-semibold text-gray-900" :class="task.status === 'done' ? 'line-through text-gray-400' : ''">
+                  <h3 class="font-semibold text-gray-900"
+                    :class="task.status === 'done' ? 'line-through text-gray-400' : ''">
                     {{ task.title }}
                   </h3>
                   <span class="text-xs px-2 py-0.5 rounded-full"
@@ -112,12 +110,9 @@
                       'bg-blue-100 text-blue-700': task.type === 'daily',
                       'bg-purple-100 text-purple-700': task.type === 'weekly',
                       'bg-orange-100 text-orange-700': task.type === 'monthly',
-                    }">
-                    {{ typeLabels[task.type] }}
-                  </span>
-                  <span v-if="task.status === 'done'" class="text-xs bg-green-100 text-green-700 px-2 py-0.5 rounded-full">
-                    ✓ Выполнено
-                  </span>
+                    }">{{ typeLabels[task.type] }}</span>
+                  <span v-if="task.status === 'done'"
+                    class="text-xs bg-green-100 text-green-700 px-2 py-0.5 rounded-full">✓ Выполнено</span>
                 </div>
                 <p v-if="task.description" class="text-sm text-gray-500 mt-1">{{ task.description }}</p>
                 <div class="text-xs text-gray-400 mt-1 space-y-0.5">
@@ -125,17 +120,17 @@
                   <p v-if="task.due_date">⏰ {{ formatDate(task.due_date) }}</p>
                   <p v-if="task.completion_comment" class="text-green-600 italic">💬 {{ task.completion_comment }}</p>
                 </div>
+                <div class="mt-3 pt-3 border-t border-gray-100">
+                  <MediaUpload entity-type="task" :entity-id="task.id" />
+                </div>
               </div>
-
-              <div class="flex flex-col gap-2 items-end">
-                <!-- HR: кнопка выполнить -->
+              <div class="flex flex-col gap-2 items-end shrink-0">
                 <template v-if="auth.isHR && task.status === 'pending' && task.assigned_to.id === auth.user.id">
                   <button @click="openComplete(task)"
                     class="text-xs bg-green-500 hover:bg-green-600 text-white px-3 py-1.5 rounded-lg transition-colors">
                     Выполнить
                   </button>
                 </template>
-                <!-- Руководитель/Админ -->
                 <template v-if="auth.isManager || auth.isAdmin">
                   <button v-if="task.status === 'done'" @click="store.reopenTask(task.id)"
                     class="text-xs text-gray-400 hover:text-gray-600 px-2 py-1 rounded transition-colors">
@@ -156,7 +151,6 @@
           <p>Задач нет</p>
         </div>
 
-        <!-- Модал выполнения -->
         <div v-if="completeModal" class="fixed inset-0 bg-black/40 flex items-center justify-center z-50 px-4">
           <div class="bg-white rounded-2xl p-6 w-full max-w-md shadow-xl">
             <h3 class="font-semibold text-gray-800 mb-3">Отметить как выполнено</h3>
@@ -175,10 +169,8 @@
             </div>
           </div>
         </div>
-
       </template>
 
-      <!-- ШАБЛОНЫ ЗАДАЧ -->
       <template v-if="tab === 'templates'">
         <div class="flex justify-between items-center mb-6">
           <button @click="tab = 'tasks'" class="text-gray-400 hover:text-gray-600 text-sm">← К задачам</button>
@@ -242,6 +234,7 @@
 import { ref, onMounted } from 'vue'
 import { useTasksStore } from '../stores/tasks'
 import { useAuthStore } from '../stores/auth'
+import MediaUpload from '../components/MediaUpload.vue'
 
 const store = useTasksStore()
 const auth = useAuthStore()
@@ -249,7 +242,6 @@ const auth = useAuthStore()
 const tab = ref('tasks')
 const period = ref('')
 const statusFilter = ref('')
-
 const typeLabels = { daily: 'День', weekly: 'Неделя', monthly: 'Месяц' }
 const periods = [
   { label: 'Все', value: '' },
@@ -271,7 +263,6 @@ function loadTasks() {
   store.fetchTasks(filters)
 }
 
-// Задачи
 const showTaskForm = ref(false)
 const taskError = ref('')
 const taskForm = ref({
@@ -302,7 +293,6 @@ async function submitTask() {
   }
 }
 
-// Выполнение
 const completeModal = ref(null)
 const completeComment = ref('')
 
@@ -316,7 +306,6 @@ async function submitComplete() {
   completeModal.value = null
 }
 
-// Шаблоны
 const showTemplateForm = ref(false)
 const templateForm = ref({ name: '', description: '' })
 
@@ -335,6 +324,7 @@ function formatDate(dt) {
 }
 
 onMounted(async () => {
+  await store.fetchUsers()
   await store.fetchTemplates()
   await store.fetchTasks()
 })

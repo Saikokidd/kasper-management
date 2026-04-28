@@ -79,17 +79,7 @@ def create_task(
     db.commit()
     db.refresh(task)
 
-    # Telegram уведомление
-    type_labels = {"daily": "день", "weekly": "неделю", "monthly": "месяц"}
-    msg = (
-        f"📋 <b>Новая задача</b>\n"
-        f"Кому: {assigned.full_name}\n"
-        f"Задача: {task.title}\n"
-        f"Период: на {type_labels.get(task.type, task.type)}"
-    )
-    if task.due_date:
-        msg += f"\nДедлайн: {task.due_date.strftime('%d.%m.%Y %H:%M')}"
-    asyncio.create_task(send_message(msg))
+
 
     return task
 
