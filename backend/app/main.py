@@ -7,6 +7,8 @@ from app.api.form_templates import router as templates_router
 from app.api.candidates import router as candidates_router
 from app.api.tasks import router as tasks_router
 from app.api.media import router as media_router
+from app.api.ads import router as ads_router
+from app.api.job_posts import router as job_posts_router
 
 app = FastAPI(title="Kasper Management API")
 
@@ -25,6 +27,8 @@ app.include_router(templates_router)
 app.include_router(candidates_router)
 app.include_router(tasks_router)
 app.include_router(media_router)
+app.include_router(ads_router)
+app.include_router(job_posts_router)
 
 @app.get("/health")
 def health():

@@ -5,3 +5,5 @@ from .form_template import FormTemplate
 from .candidate import Candidate
 from .task import Task, TaskTemplate
 from .media_file import MediaFile
+from .ad import Ad
+from .job_post import JobPost

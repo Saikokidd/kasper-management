@@ -58,8 +58,8 @@ const uploading = ref(false)
 const uploadError = ref('')
 const unavailable = ref(false)
 
-const canUpload = computed(() => !auth.isManager)
-const canDelete = computed(() => !auth.isManager)
+const canUpload = computed(() => !auth.isPult)
+const canDelete = computed(() => !auth.isPult)
 
 async function loadFiles() {
   try {

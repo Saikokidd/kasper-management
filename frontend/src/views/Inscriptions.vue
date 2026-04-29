@@ -17,7 +17,7 @@
           class="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
         />
         <button
-          v-if="!auth.isManager"
+          v-if="!auth.isPult"
           @click="showForm = true"
           class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors whitespace-nowrap"
         >
@@ -100,7 +100,7 @@
                 <p class="text-xs text-gray-300">{{ formatDate(item.created_at) }}</p>
               </div>
             </div>
-            <div v-if="!auth.isManager" class="flex gap-2 ml-4">
+            <div v-if="!auth.isPult" class="flex gap-2 ml-4">
               <button @click="startEdit(item)"
                 class="text-xs text-blue-500 hover:text-blue-700 px-2 py-1 rounded transition-colors">
                 Ред.

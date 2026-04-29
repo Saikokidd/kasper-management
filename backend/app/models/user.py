@@ -4,7 +4,7 @@ import enum
 
 class UserRole(str, enum.Enum):
     admin = "admin"
-    manager = "manager"
+    pult = "pult"
     hr = "hr"
 
 class User(Base):

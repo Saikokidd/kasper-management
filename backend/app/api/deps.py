@@ -26,7 +26,7 @@ def require_admin(current_user: User = Depends(get_current_user)) -> User:
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN)
     return current_user
 
-def require_manager_or_admin(current_user: User = Depends(get_current_user)) -> User:
-    if current_user.role not in [UserRole.admin, UserRole.manager]:
+def require_pult_or_admin(current_user: User = Depends(get_current_user)) -> User:
+    if current_user.role not in [UserRole.admin, UserRole.pult]:
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN)
     return current_user

@@ -14,7 +14,7 @@
           class="px-4 py-2 rounded-lg text-sm font-medium transition-colors">
           📋 Анкеты
         </button>
-        <button v-if="auth.isManager || auth.isAdmin" @click="tab = 'templates'"
+        <button v-if="auth.isPult || auth.isAdmin" @click="tab = 'templates'"
           :class="tab === 'templates' ? 'bg-blue-600 text-white' : 'bg-white text-gray-600 border border-gray-200'"
           class="px-4 py-2 rounded-lg text-sm font-medium transition-colors">
           🗂 Шаблоны
@@ -31,7 +31,7 @@
             <option value="">Все шаблоны</option>
             <option v-for="t in store.templates" :key="t.id" :value="t.id">{{ t.name }}</option>
           </select>
-          <button v-if="!auth.isManager" @click="openCandidateForm()"
+          <button v-if="!auth.isPult" @click="openCandidateForm()"
             class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors whitespace-nowrap">
             + Добавить
           </button>
@@ -109,7 +109,7 @@
                 </div>
                 <p class="text-xs text-gray-300 mt-2">{{ formatDate(c.created_at) }}</p>
               </div>
-              <div v-if="!auth.isManager" class="flex gap-2 ml-4">
+              <div v-if="!auth.isPult" class="flex gap-2 ml-4">
                 <button @click="openCandidateForm(c)"
                   class="text-xs text-blue-500 hover:text-blue-700 px-2 py-1 rounded transition-colors">
                   Ред.

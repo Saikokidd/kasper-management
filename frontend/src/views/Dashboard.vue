@@ -12,7 +12,7 @@
       <h2 class="text-2xl font-semibold text-gray-800 mb-2">Добро пожаловать, {{ auth.user?.full_name }}</h2>
       <p class="text-gray-500">Выберите раздел для работы</p>
       <div class="grid grid-cols-2 md:grid-cols-3 gap-4 mt-8">
-        <router-link v-for="section in sections" :key="section.name" :to="section.to || '#'"
+        <router-link v-for="section in sections" :key="section.name" :to="section.to"
           class="bg-white border border-gray-200 rounded-xl p-6 hover:shadow-md transition-shadow block">
           <div class="text-3xl mb-3">{{ section.icon }}</div>
           <h3 class="font-semibold text-gray-800">{{ section.name }}</h3>
@@ -32,7 +32,7 @@ const router = useRouter()
 const auth = useAuthStore()
 
 const roleLabel = computed(() => ({
-  admin: 'Администратор', manager: 'Руководитель', hr: 'HR'
+  admin: 'Администратор', pult: 'Руководство', hr: 'HR'
 }[auth.user?.role] || ''))
 
 function handleLogout() {
@@ -45,7 +45,7 @@ const sections = [
   { icon: '✍️', name: 'Прописи', desc: 'Ручной поиск в соцсетях', to: '/inscriptions' },
   { icon: '📋', name: 'Анкеты', desc: 'Личные дела сотрудников', to: '/candidates' },
   { icon: '✅', name: 'Задачи', desc: 'План на день, неделю, месяц', to: '/tasks' },
-  { icon: '📢', name: 'Реклама', desc: 'Публикации в соцсетях', to: '#' },
-  { icon: '📊', name: 'TikTok', desc: 'Статистика эфиров', to: '#' },
+  { icon: '📢', name: 'Реклама', desc: 'Публикации в соцсетях', to: '/ads' },
+  { icon: '📄', name: 'Объявления', desc: 'OLX и Work.UA', to: '/job-posts' },
 ]
 </script>

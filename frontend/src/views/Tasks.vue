@@ -13,7 +13,7 @@
           class="px-4 py-2 rounded-lg text-sm font-medium transition-colors">
           {{ t.label }}
         </button>
-        <button v-if="auth.isManager || auth.isAdmin" @click="tab = 'templates'"
+        <button v-if="auth.isPult || auth.isAdmin" @click="tab = 'templates'"
           :class="tab === 'templates' ? 'bg-blue-600 text-white' : 'bg-white text-gray-600 border border-gray-200'"
           class="px-4 py-2 rounded-lg text-sm font-medium transition-colors ml-auto">
           🗂 Шаблоны
@@ -29,7 +29,7 @@
             <option value="done">Выполнено</option>
           </select>
           <div class="flex-1"></div>
-          <button v-if="auth.isManager || auth.isAdmin" @click="showTaskForm = true"
+          <button v-if="auth.isPult || auth.isAdmin" @click="showTaskForm = true"
             class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors">
             + Создать задачу
           </button>
@@ -131,7 +131,7 @@
                     Выполнить
                   </button>
                 </template>
-                <template v-if="auth.isManager || auth.isAdmin">
+                <template v-if="auth.isPult || auth.isAdmin">
                   <button v-if="task.status === 'done'" @click="store.reopenTask(task.id)"
                     class="text-xs text-gray-400 hover:text-gray-600 px-2 py-1 rounded transition-colors">
                     Открыть снова

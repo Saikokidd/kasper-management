@@ -26,7 +26,7 @@
         <div class="flex justify-between items-center mb-6">
           <p class="text-gray-500 text-sm">{{ store.interviews.length }} записей</p>
           <button
-            v-if="!auth.isManager"
+            v-if="!auth.isPult"
             @click="showForm = true"
             class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors"
           >
@@ -91,7 +91,7 @@
                   <p v-if="item.comment" class="text-gray-400 italic">{{ item.comment }}</p>
                 </div>
               </div>
-              <div v-if="!auth.isManager" class="flex gap-2 ml-4">
+              <div v-if="!auth.isPult" class="flex gap-2 ml-4">
                 <button @click="startEdit(item)"
                   class="text-xs text-blue-500 hover:text-blue-700 px-2 py-1 rounded transition-colors">
                   Ред.

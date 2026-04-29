@@ -1,18 +1,13 @@
 from fastapi import APIRouter, Depends, HTTPException, Query
 from sqlalchemy.orm import Session
 from typing import List, Optional
-from datetime import datetime, timezone
 from app.database import get_db
 from app.models.task import Task, TaskTemplate, TaskStatus
 from app.models.user import User, UserRole
 from app.schemas.task import TaskCreate, TaskComplete, TaskOut, TaskTemplateCreate, TaskTemplateOut
-from app.api.deps import get_current_user, require_manager_or_admin
-from app.services.telegram import send_message
-import asyncio
+from app.api.deps import get_current_user, require_pult_or_admin
 
 router = APIRouter(prefix="/api/tasks", tags=["tasks"])
-
-# --- Шаблоны задач ---
 
 @router.get("/templates", response_model=List[TaskTemplateOut])
 def list_task_templates(
@@ -25,7 +20,7 @@ def list_task_templates(
 def create_task_template(
     data: TaskTemplateCreate,
     db: Session = Depends(get_db),
-    current_user: User = Depends(require_manager_or_admin)
+    current_user: User = Depends(require_pult_or_admin)
 ):
     tmpl = TaskTemplate(**data.model_dump(), created_by_id=current_user.id)
     db.add(tmpl)
@@ -37,7 +32,7 @@ def create_task_template(
 def delete_task_template(
     tmpl_id: int,
     db: Session = Depends(get_db),
-    current_user: User = Depends(require_manager_or_admin)
+    current_user: User = Depends(require_pult_or_admin)
 ):
     tmpl = db.query(TaskTemplate).filter(TaskTemplate.id == tmpl_id).first()
     if not tmpl:
@@ -45,8 +40,6 @@ def delete_task_template(
     db.delete(tmpl)
     db.commit()
     return {"detail": "Удалено"}
-
-# --- Задачи ---
 
 @router.get("", response_model=List[TaskOut])
 def list_tasks(
@@ -56,7 +49,6 @@ def list_tasks(
     current_user: User = Depends(get_current_user)
 ):
     q = db.query(Task)
-    # HR видит только свои задачи
     if current_user.role == UserRole.hr:
         q = q.filter(Task.assigned_to_id == current_user.id)
     if type:
@@ -69,7 +61,7 @@ def list_tasks(
 def create_task(
     data: TaskCreate,
     db: Session = Depends(get_db),
-    current_user: User = Depends(require_manager_or_admin)
+    current_user: User = Depends(require_pult_or_admin)
 ):
     assigned = db.query(User).filter(User.id == data.assigned_to_id).first()
     if not assigned:
@@ -78,9 +70,6 @@ def create_task(
     db.add(task)
     db.commit()
     db.refresh(task)
-
-
-
     return task
 
 @router.post("/{task_id}/complete", response_model=TaskOut)
@@ -105,7 +94,7 @@ def complete_task(
 def reopen_task(
     task_id: int,
     db: Session = Depends(get_db),
-    current_user: User = Depends(require_manager_or_admin)
+    current_user: User = Depends(require_pult_or_admin)
 ):
     task = db.query(Task).filter(Task.id == task_id).first()
     if not task:
@@ -120,7 +109,7 @@ def reopen_task(
 def delete_task(
     task_id: int,
     db: Session = Depends(get_db),
-    current_user: User = Depends(require_manager_or_admin)
+    current_user: User = Depends(require_pult_or_admin)
 ):
     task = db.query(Task).filter(Task.id == task_id).first()
     if not task:

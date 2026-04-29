@@ -4,7 +4,7 @@ from app.database import get_db
 from app.models.user import User
 from app.schemas.user import UserLogin, UserOut, Token, UserCreate
 from app.services.auth import verify_password, hash_password, create_access_token
-from app.api.deps import get_current_user, require_admin, require_manager_or_admin
+from app.api.deps import get_current_user, require_admin, require_pult_or_admin
 
 router = APIRouter(prefix="/api/auth", tags=["auth"])
 
@@ -46,5 +46,5 @@ def reset_password(user_id: int, new_password: str, db: Session = Depends(get_db
     return {"detail": "Пароль сброшен"}
 
 @router.get("/users", response_model=list[UserOut])
-def list_users(db: Session = Depends(get_db), _=Depends(require_manager_or_admin)):
+def list_users(db: Session = Depends(get_db), _=Depends(require_pult_or_admin)):
     return db.query(User).order_by(User.full_name).all()

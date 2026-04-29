@@ -4,7 +4,7 @@ from typing import List
 from app.database import get_db
 from app.models.form_template import FormTemplate
 from app.schemas.form_template import FormTemplateCreate, FormTemplateUpdate, FormTemplateOut
-from app.api.deps import get_current_user, require_manager_or_admin
+from app.api.deps import get_current_user, require_pult_or_admin
 from app.models.user import User
 
 router = APIRouter(prefix="/api/templates", tags=["templates"])
@@ -20,7 +20,7 @@ def list_templates(
 def create_template(
     data: FormTemplateCreate,
     db: Session = Depends(get_db),
-    current_user: User = Depends(require_manager_or_admin)
+    current_user: User = Depends(require_pult_or_admin)
 ):
     template = FormTemplate(
         name=data.name,
@@ -48,7 +48,7 @@ def update_template(
     template_id: int,
     data: FormTemplateUpdate,
     db: Session = Depends(get_db),
-    current_user: User = Depends(require_manager_or_admin)
+    current_user: User = Depends(require_pult_or_admin)
 ):
     template = db.query(FormTemplate).filter(FormTemplate.id == template_id).first()
     if not template:
@@ -65,7 +65,7 @@ def update_template(
 def delete_template(
     template_id: int,
     db: Session = Depends(get_db),
-    current_user: User = Depends(require_manager_or_admin)
+    current_user: User = Depends(require_pult_or_admin)
 ):
     template = db.query(FormTemplate).filter(FormTemplate.id == template_id).first()
     if not template:

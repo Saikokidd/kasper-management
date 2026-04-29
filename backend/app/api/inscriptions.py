@@ -32,7 +32,7 @@ def create_inscription(
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user)
 ):
-    if current_user.role == UserRole.manager:
+    if current_user.role == UserRole.pult:
         raise HTTPException(status_code=403, detail="Недостаточно прав")
     inscription = Inscription(**data.model_dump(), created_by_id=current_user.id)
     db.add(inscription)
@@ -47,7 +47,7 @@ def update_inscription(
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user)
 ):
-    if current_user.role == UserRole.manager:
+    if current_user.role == UserRole.pult:
         raise HTTPException(status_code=403, detail="Недостаточно прав")
     inscription = db.query(Inscription).filter(Inscription.id == inscription_id).first()
     if not inscription:
@@ -64,7 +64,7 @@ def delete_inscription(
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user)
 ):
-    if current_user.role == UserRole.manager:
+    if current_user.role == UserRole.pult:
         raise HTTPException(status_code=403, detail="Недостаточно прав")
     inscription = db.query(Inscription).filter(Inscription.id == inscription_id).first()
     if not inscription:

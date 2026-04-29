@@ -31,7 +31,7 @@ def create_candidate(
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user)
 ):
-    if current_user.role == UserRole.manager:
+    if current_user.role == UserRole.pult:
         raise HTTPException(status_code=403, detail="Недостаточно прав")
     template = db.query(FormTemplate).filter(FormTemplate.id == data.template_id).first()
     if not template:
@@ -65,7 +65,7 @@ def update_candidate(
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user)
 ):
-    if current_user.role == UserRole.manager:
+    if current_user.role == UserRole.pult:
         raise HTTPException(status_code=403, detail="Недостаточно прав")
     candidate = db.query(Candidate).filter(Candidate.id == candidate_id).first()
     if not candidate:
@@ -84,7 +84,7 @@ def delete_candidate(
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user)
 ):
-    if current_user.role == UserRole.manager:
+    if current_user.role == UserRole.pult:
         raise HTTPException(status_code=403, detail="Недостаточно прав")
     candidate = db.query(Candidate).filter(Candidate.id == candidate_id).first()
     if not candidate:

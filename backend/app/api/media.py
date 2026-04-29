@@ -22,7 +22,7 @@ async def upload_file(
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user)
 ):
-    if current_user.role == UserRole.manager:
+    if current_user.role == UserRole.pult:
         raise HTTPException(status_code=403, detail="Недостаточно прав")
     os.makedirs(MEDIA_DIR, exist_ok=True)
     ext = os.path.splitext(file.filename)[1]
@@ -79,7 +79,7 @@ def delete_file(
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user)
 ):
-    if current_user.role == UserRole.manager:
+    if current_user.role == UserRole.pult:
         raise HTTPException(status_code=403, detail="Недостаточно прав")
     media = db.query(MediaFile).filter(MediaFile.id == file_id).first()
     if not media:
