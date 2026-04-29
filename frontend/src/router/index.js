@@ -8,6 +8,7 @@ import Candidates from '../views/Candidates.vue'
 import Tasks from '../views/Tasks.vue'
 import Ads from '../views/Ads.vue'
 import JobPosts from '../views/JobPosts.vue'
+import TiktokStreams from '../views/TiktokStreams.vue'
 
 const routes = [
   { path: '/login', component: Login },
@@ -18,6 +19,7 @@ const routes = [
   { path: '/tasks', component: Tasks, meta: { requiresAuth: true } },
   { path: '/ads', component: Ads, meta: { requiresAuth: true } },
   { path: '/job-posts', component: JobPosts, meta: { requiresAuth: true } },
+  { path: '/tiktok', component: TiktokStreams, meta: { requiresAuth: true } },
 ]
 
 const router = createRouter({

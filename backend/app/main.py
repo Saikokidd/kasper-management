@@ -9,6 +9,7 @@ from app.api.tasks import router as tasks_router
 from app.api.media import router as media_router
 from app.api.ads import router as ads_router
 from app.api.job_posts import router as job_posts_router
+from app.api.tiktok_streams import router as tiktok_streams_router
 
 app = FastAPI(title="Kasper Management API")
 
@@ -29,6 +30,7 @@ app.include_router(tasks_router)
 app.include_router(media_router)
 app.include_router(ads_router)
 app.include_router(job_posts_router)
+app.include_router(tiktok_streams_router)
 
 @app.get("/health")
 def health():

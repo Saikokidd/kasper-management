@@ -47,5 +47,6 @@ const sections = [
   { icon: '✅', name: 'Задачи', desc: 'План на день, неделю, месяц', to: '/tasks' },
   { icon: '📢', name: 'Реклама', desc: 'Публикации в соцсетях', to: '/ads' },
   { icon: '📄', name: 'Объявления', desc: 'OLX и Work.UA', to: '/job-posts' },
+  { icon: '🎵', name: 'TikTok', desc: 'Статистика эфиров', to: '/tiktok' },
 ]
 </script>
