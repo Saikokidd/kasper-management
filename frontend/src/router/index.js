@@ -5,6 +5,7 @@ import Dashboard from '../views/Dashboard.vue'
 import Interviews from '../views/Interviews.vue'
 import Inscriptions from '../views/Inscriptions.vue'
 import Candidates from '../views/Candidates.vue'
+import CandidateDetail from '../views/CandidateDetail.vue'
 import Tasks from '../views/Tasks.vue'
 import Ads from '../views/Ads.vue'
 import JobPosts from '../views/JobPosts.vue'
@@ -16,6 +17,7 @@ const routes = [
   { path: '/interviews', component: Interviews, meta: { requiresAuth: true } },
   { path: '/inscriptions', component: Inscriptions, meta: { requiresAuth: true } },
   { path: '/candidates', component: Candidates, meta: { requiresAuth: true } },
+  { path: '/candidates/:id', component: CandidateDetail, meta: { requiresAuth: true } },
   { path: '/tasks', component: Tasks, meta: { requiresAuth: true } },
   { path: '/ads', component: Ads, meta: { requiresAuth: true } },
   { path: '/job-posts', component: JobPosts, meta: { requiresAuth: true } },

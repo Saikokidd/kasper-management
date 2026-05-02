@@ -27,7 +27,7 @@
 
       <!-- ФОРМА -->
       <div v-if="showForm" class="card-form">
-        <h2>{{ editingId ? 'Редактировать запись' : (view === 'completed' ? 'Добавить в прошедшие' : 'Новое собеседование') }}</h2>
+        <h2>{{ editingId ? 'Редактировать запись' : 'Новое собеседование' }}</h2>
         <div class="form-grid">
           <div class="form-group">
             <label class="form-label">ФИО *</label>
@@ -53,11 +53,32 @@
             <label class="form-label">TikTok</label>
             <input v-model="form.tiktok" class="form-input" placeholder="@tiktok" />
           </div>
+          <div v-if="!editingId" class="form-group col-2">
+            <label class="form-label">Куда добавить *</label>
+            <div class="status-select">
+              <button
+                type="button"
+                class="status-btn"
+                :class="{ active: form.status === 'scheduled' }"
+                @click="form.status = 'scheduled'"
+              >
+                📋 Назначенные
+              </button>
+              <button
+                type="button"
+                class="status-btn"
+                :class="{ active: form.status === 'completed' }"
+                @click="form.status = 'completed'"
+              >
+                ✅ Прошедшие
+              </button>
+            </div>
+          </div>
           <div class="form-group col-2">
             <label class="form-label">Комментарий</label>
             <textarea v-model="form.comment" class="form-textarea" placeholder="Заметки..." />
           </div>
-          <div v-if="view === 'completed'" class="form-group col-2">
+          <div v-if="form.status === 'completed'" class="form-group col-2">
             <label class="form-label">Итог собеседования</label>
             <textarea v-model="form.result" class="form-textarea" placeholder="Результат, впечатления, решение..." />
           </div>
@@ -105,7 +126,6 @@
         <div v-if="store.loading" class="loading-state">Загрузка...</div>
         <div v-else-if="store.scheduled.length" style="display:flex;flex-direction:column;gap:10px">
           <div v-for="item in store.scheduled" :key="item.id" class="card interview-card">
-            <!-- Свёрнутая шапка -->
             <div class="interview-header" @click="toggleExpand(item.id)">
               <div class="interview-header-left">
                 <div class="expand-arrow" :class="{ expanded: expandedIds.has(item.id) }">
@@ -130,7 +150,6 @@
               </div>
             </div>
 
-            <!-- Развёрнутые детали -->
             <div v-if="expandedIds.has(item.id)" class="interview-details">
               <div class="details-grid">
                 <div v-if="item.username" class="detail-item">
@@ -176,7 +195,6 @@
         <div v-if="store.loading" class="loading-state">Загрузка...</div>
         <div v-else-if="store.completed.length" style="display:flex;flex-direction:column;gap:10px">
           <div v-for="item in store.completed" :key="item.id" class="card interview-card">
-            <!-- Свёрнутая шапка -->
             <div class="interview-header" @click="toggleExpand(item.id)">
               <div class="interview-header-left">
                 <div class="expand-arrow" :class="{ expanded: expandedIds.has(item.id) }">
@@ -201,7 +219,6 @@
               </div>
             </div>
 
-            <!-- Развёрнутые детали -->
             <div v-if="expandedIds.has(item.id)" class="interview-details">
               <div class="details-grid">
                 <div v-if="item.username" class="detail-item">
@@ -288,7 +305,7 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted, reactive } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 import AppLayout from '../components/AppLayout.vue'
 import { useInterviewsStore } from '../stores/interviews'
 import { useAuthStore } from '../stores/auth'
@@ -309,14 +326,14 @@ const expandedIds = ref(new Set())
 const defaultForm = () => ({
   full_name: '', username: '', instagram: '', tiktok: '',
   phone: '', scheduled_at: '', comment: '', result: '',
-  photo_preview: null
+  photo_preview: null,
+  status: ''
 })
 
 const form = ref(defaultForm())
 const completeModal = ref(null)
 const completeResult = ref('')
 
-// Календарь
 const today = new Date()
 const calYear = ref(today.getFullYear())
 const calMonth = ref(today.getMonth())
@@ -402,6 +419,7 @@ function openForm(item = null) {
     comment: item?.comment || '',
     result: item?.result || '',
     photo_preview: item?.photo_path ? photoUrl(item.photo_path) : null,
+    status: item?.status || '',
   }
   formError.value = ''
   showForm.value = true
@@ -418,6 +436,7 @@ function resetForm() {
 async function submitForm() {
   formError.value = ''
   if (!form.value.full_name.trim()) { formError.value = 'ФИО обязательно'; return }
+  if (!editingId.value && !form.value.status) { formError.value = 'Выберите куда добавить запись'; return }
   saving.value = true
   try {
     const payload = {
@@ -429,8 +448,7 @@ async function submitForm() {
       scheduled_at: form.value.scheduled_at || null,
       comment: form.value.comment || null,
       result: form.value.result || null,
-      // Статус определяется текущей вкладкой
-      status: view.value === 'completed' ? 'completed' : 'scheduled',
+      status: form.value.status,
     }
     let result
     if (editingId.value) {
@@ -474,7 +492,6 @@ onMounted(() => store.fetchAll())
 }
 .interview-card:hover { border-color: rgba(110,231,183,0.2); }
 
-/* Шапка карточки — кликабельная */
 .interview-header {
   display: flex;
   align-items: center;
@@ -495,7 +512,6 @@ onMounted(() => store.fetchAll())
   min-width: 0;
 }
 
-/* Стрелка */
 .expand-arrow {
   color: var(--text-muted);
   display: flex;
@@ -526,7 +542,6 @@ onMounted(() => store.fetchAll())
 .chip-accent { background: var(--accent-dim); color: var(--accent); }
 .chip-muted { color: var(--text-muted); }
 
-/* Миниатюра фото в шапке */
 .interview-photo-thumb {
   width: 42px; height: 42px;
   border-radius: var(--radius-sm);
@@ -536,7 +551,6 @@ onMounted(() => store.fetchAll())
 }
 .interview-photo-thumb img { width: 100%; height: 100%; object-fit: cover; }
 
-/* Развёрнутые детали */
 .interview-details {
   border-top: 1px solid var(--border);
   padding: 16px;
@@ -592,7 +606,6 @@ onMounted(() => store.fetchAll())
 
 .card-actions { display: flex; gap: 6px; flex-wrap: wrap; padding-top: 4px; }
 
-/* Табы с каунтером */
 .tab-count {
   display: inline-flex; align-items: center; justify-content: center;
   background: var(--accent-dim); color: var(--accent);
@@ -601,7 +614,6 @@ onMounted(() => store.fetchAll())
 }
 .tab.active .tab-count { background: rgba(255,255,255,0.2); color: inherit; }
 
-/* Фото загрузка */
 .photo-upload-area { display: flex; align-items: center; gap: 10px; }
 .photo-preview { position: relative; width: 80px; height: 80px; }
 .photo-preview img { width: 100%; height: 100%; object-fit: cover; border-radius: var(--radius-sm); border: 1px solid var(--border); }
@@ -619,7 +631,37 @@ onMounted(() => store.fetchAll())
 }
 .photo-upload-btn:hover { border-color: var(--accent); color: var(--accent); }
 
-/* Календарь */
+.status-select {
+  display: flex;
+  gap: 8px;
+}
+
+.status-btn {
+  flex: 1;
+  padding: 10px;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border);
+  background: var(--bg-elevated);
+  color: var(--text-secondary);
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.18s ease;
+  font-family: inherit;
+}
+
+.status-btn:hover {
+  border-color: var(--accent);
+  color: var(--text-primary);
+}
+
+.status-btn.active {
+  background: var(--accent-dim);
+  border-color: var(--accent);
+  color: var(--accent);
+  font-weight: 600;
+}
+
 .cal-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; }
 .cal-title { font-size: 15px; font-weight: 600; color: var(--text-primary); text-transform: capitalize; }
 .cal-legend { display: flex; gap: 16px; margin-bottom: 14px; }
@@ -640,7 +682,6 @@ onMounted(() => store.fetchAll())
 .cal-event--scheduled { background: var(--accent-dim); color: var(--accent); }
 .cal-event--completed { background: rgba(96,165,250,0.12); color: #60a5fa; }
 
-/* Модал */
 .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.6); z-index: 200; display: flex; align-items: center; justify-content: center; padding: 16px; backdrop-filter: blur(4px); }
 .modal { background: var(--bg-surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 24px; width: 100%; max-width: 440px; }
 .modal-title { font-size: 16px; font-weight: 700; color: var(--text-primary); margin-bottom: 4px; }

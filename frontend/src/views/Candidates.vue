@@ -13,7 +13,7 @@
         </div>
       </div>
 
-      <!-- Фильтры анкет -->
+      <!-- Фильтры -->
       <div v-if="tab === 'candidates'" style="display:flex;gap:8px;margin-bottom:20px;flex-wrap:wrap">
         <input v-model="search" @input="onSearch" class="form-input" style="flex:1;min-width:180px" placeholder="Поиск по имени..." />
         <select v-model="filterTemplate" @change="store.fetchCandidates(search, filterTemplate || null)" class="form-select" style="width:180px">
@@ -39,7 +39,12 @@
           </div>
         </div>
         <div v-if="selectedTemplate" class="form-grid" style="margin-top:14px">
-          <div v-for="field in selectedTemplate.fields" :key="field.key" class="form-group" :class="field.type === 'textarea' ? 'col-2' : ''">
+          <div
+            v-for="field in selectedTemplate.fields.filter(f => f.type !== 'photo')"
+            :key="field.key"
+            class="form-group"
+            :class="field.type === 'textarea' ? 'col-2' : ''"
+          >
             <label class="form-label">{{ field.label }}<span v-if="field.required" style="color:var(--danger)"> *</span></label>
             <textarea v-if="field.type === 'textarea'" v-model="candidateForm.fields[field.key]" class="form-textarea" />
             <select v-else-if="field.type === 'select'" v-model="candidateForm.fields[field.key]" class="form-select">
@@ -47,6 +52,9 @@
               <option v-for="opt in field.options" :key="opt" :value="opt">{{ opt }}</option>
             </select>
             <input v-else v-model="candidateForm.fields[field.key]" :type="field.type === 'date' ? 'date' : 'text'" class="form-input" />
+          </div>
+          <div v-if="selectedTemplate.fields.some(f => f.type === 'photo')" class="form-group col-2">
+            <p style="font-size:12px;color:var(--text-muted);">📷 Фото можно добавить после создания анкеты, открыв её страницу</p>
           </div>
         </div>
         <p v-if="candidateError" class="form-error">{{ candidateError }}</p>
@@ -68,7 +76,7 @@
           <button class="btn btn-ghost btn-sm" @click="addField">+ Добавить поле</button>
         </div>
         <div style="display:flex;flex-direction:column;gap:10px">
-          <div v-for="(field,idx) in templateForm.fields" :key="idx" class="card" style="padding:14px">
+          <div v-for="(field, idx) in templateForm.fields" :key="idx" class="card" style="padding:14px">
             <div class="form-grid">
               <div class="form-group">
                 <label class="form-label">Название поля</label>
@@ -76,27 +84,33 @@
               </div>
               <div class="form-group">
                 <label class="form-label">Ключ (латин.)</label>
-                <input v-model="field.key" class="form-input" placeholder="full_name, address..." />
+                <input v-model="field.key" class="form-input" placeholder="full_name, address..." :disabled="field.type === 'photo'" />
               </div>
               <div class="form-group">
                 <label class="form-label">Тип</label>
-                <select v-model="field.type" class="form-select">
+                <select v-model="field.type" @change="onFieldTypeChange(field)" class="form-select">
                   <option value="text">Текст</option>
                   <option value="textarea">Текстовая область</option>
                   <option value="date">Дата</option>
                   <option value="select">Выбор</option>
+                  <option value="photo">Фото (до 3 шт.)</option>
                 </select>
               </div>
               <div class="form-group" style="justify-content:flex-end;flex-direction:row;align-items:center;gap:12px;padding-top:20px">
-                <label style="display:flex;align-items:center;gap:6px;font-size:12px;color:var(--text-secondary);cursor:pointer">
+                <label v-if="field.type !== 'photo'" style="display:flex;align-items:center;gap:6px;font-size:12px;color:var(--text-secondary);cursor:pointer">
                   <input type="checkbox" v-model="field.required" />
                   Обязательное
                 </label>
-                <button class="btn btn-danger btn-sm" @click="templateForm.fields.splice(idx,1)">Удалить</button>
+                <button class="btn btn-danger btn-sm" @click="templateForm.fields.splice(idx, 1)">Удалить</button>
               </div>
               <div v-if="field.type === 'select'" class="form-group col-2">
                 <label class="form-label">Варианты (через запятую)</label>
                 <input v-model="field.optionsRaw" class="form-input" placeholder="Да, Нет, Не знаю" />
+              </div>
+              <div v-if="field.type === 'photo'" class="form-group col-2">
+                <div class="photo-type-info">
+                  📷 Поле для загрузки фото — до 3 изображений. Фото загружаются на странице анкеты.
+                </div>
               </div>
             </div>
           </div>
@@ -108,29 +122,37 @@
         </div>
       </div>
 
-      <!-- АНКЕТЫ -->
+      <!-- СПИСОК АНКЕТ -->
       <template v-if="tab === 'candidates'">
         <div v-if="store.loading" class="loading-state">Загрузка...</div>
-        <div v-else-if="store.candidates.length" style="display:flex;flex-direction:column;gap:10px">
-          <div v-for="c in store.candidates" :key="c.id" class="card cand-card">
-            <div class="cand-top">
-              <div>
-                <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px">
-                  <span style="font-size:14px;font-weight:600;color:var(--text-primary)">{{ c.full_name }}</span>
-                  <span class="badge badge-blue">{{ c.template.name }}</span>
-                </div>
-                <div class="cand-fields">
-                  <div v-for="field in c.template.fields" :key="field.key" class="cand-field">
-                    <span class="cand-field-label">{{ field.label }}:</span>
-                    <span class="cand-field-value">{{ c.fields[field.key] || '—' }}</span>
-                  </div>
-                </div>
-                <p style="font-size:11px;color:var(--text-muted);margin-top:8px">{{ formatDate(c.created_at) }}</p>
+        <div v-else-if="store.candidates.length" class="candidates-grid">
+          <div
+            v-for="c in store.candidates"
+            :key="c.id"
+            class="candidate-card"
+            @click="$router.push(`/candidates/${c.id}`)"
+          >
+            <div class="candidate-avatar">{{ initials(c.full_name) }}</div>
+            <div class="candidate-info">
+              <div class="candidate-name">{{ c.full_name }}</div>
+              <span class="badge badge-blue" style="margin-top:4px">{{ c.template.name }}</span>
+              <div class="candidate-preview">
+                <span
+                  v-for="field in c.template.fields.filter(f => f.type !== 'photo').slice(0, 3)"
+                  :key="field.key"
+                  class="preview-item"
+                >
+                  <span class="preview-label">{{ field.label }}:</span>
+                  {{ c.fields[field.key] || '—' }}
+                </span>
               </div>
-              <div v-if="!auth.isPult" class="card-actions">
-                <button class="btn btn-ghost btn-sm" @click="openCandidateForm(c)">Изменить</button>
-                <button class="btn btn-danger btn-sm" @click="removeCandidate(c.id)">Удалить</button>
-              </div>
+            </div>
+            <div class="candidate-date">{{ formatDateShort(c.created_at) }}</div>
+            <div class="candidate-arrow">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <line x1="5" y1="12" x2="19" y2="12"/>
+                <polyline points="12 5 19 12 12 19"/>
+              </svg>
             </div>
           </div>
         </div>
@@ -143,7 +165,9 @@
           <div v-for="t in store.templates" :key="t.id" class="card" style="display:flex;align-items:center;justify-content:space-between">
             <div>
               <div style="font-size:14px;font-weight:600;color:var(--text-primary)">{{ t.name }}</div>
-              <div style="font-size:12px;color:var(--text-muted);margin-top:3px">{{ t.fields.length }} полей: {{ t.fields.map(f => f.label).join(', ') }}</div>
+              <div style="font-size:12px;color:var(--text-muted);margin-top:3px">
+                {{ t.fields.length }} полей: {{ t.fields.map(f => f.label).join(', ') }}
+              </div>
             </div>
             <button class="btn btn-danger btn-sm" @click="removeTemplate(t.id)">Удалить</button>
           </div>
@@ -168,13 +192,26 @@ const tab = ref('candidates')
 const search = ref('')
 const filterTemplate = ref('')
 
-// Шаблоны
 const showTemplateForm = ref(false)
 const templateError = ref('')
-const templateForm = ref({ name:'', fields:[] })
+const templateForm = ref({ name: '', fields: [] })
 
-function openTemplateForm() { templateForm.value = { name:'', fields:[] }; templateError.value = ''; showTemplateForm.value = true }
-function addField() { templateForm.value.fields.push({ key:'', label:'', type:'text', required:false, optionsRaw:'' }) }
+function openTemplateForm() {
+  templateForm.value = { name: '', fields: [] }
+  templateError.value = ''
+  showTemplateForm.value = true
+}
+
+function addField() {
+  templateForm.value.fields.push({ key: '', label: '', type: 'text', required: false, optionsRaw: '' })
+}
+
+function onFieldTypeChange(field) {
+  if (field.type === 'photo') {
+    field.key = `photo_${Date.now()}`
+    field.required = false
+  }
+}
 
 async function submitTemplate() {
   templateError.value = ''
@@ -184,19 +221,28 @@ async function submitTemplate() {
     if (!f.key.trim() || !f.label.trim()) { templateError.value = 'Заполните все поля'; return }
   }
   try {
-    const fields = templateForm.value.fields.map(f => ({ key:f.key.trim(), label:f.label.trim(), type:f.type, required:f.required, options: f.optionsRaw ? f.optionsRaw.split(',').map(o=>o.trim()).filter(Boolean) : [] }))
+    const fields = templateForm.value.fields.map(f => ({
+      key: f.key.trim(),
+      label: f.label.trim(),
+      type: f.type,
+      required: f.required,
+      options: f.optionsRaw ? f.optionsRaw.split(',').map(o => o.trim()).filter(Boolean) : []
+    }))
     await store.createTemplate({ name: templateForm.value.name, fields })
     showTemplateForm.value = false
-  } catch (e) { templateError.value = e.response?.data?.detail || 'Ошибка' }
+  } catch (e) {
+    templateError.value = e.response?.data?.detail || 'Ошибка'
+  }
 }
 
-async function removeTemplate(id) { if (confirm('Удалить шаблон?')) await store.deleteTemplate(id) }
+async function removeTemplate(id) {
+  if (confirm('Удалить шаблон?')) await store.deleteTemplate(id)
+}
 
-// Анкеты
 const showCandidateForm = ref(false)
 const candidateError = ref('')
 const editingCandidate = ref(null)
-const candidateForm = ref({ full_name:'', template_id:'', fields:{} })
+const candidateForm = ref({ full_name: '', template_id: '', fields: {} })
 
 const selectedTemplate = computed(() => {
   const id = editingCandidate.value ? editingCandidate.value.template.id : candidateForm.value.template_id
@@ -210,42 +256,135 @@ function openCandidateForm(candidate = null) {
   if (candidate) {
     candidateForm.value = { full_name: candidate.full_name, template_id: candidate.template.id, fields: { ...candidate.fields } }
   } else {
-    candidateForm.value = { full_name:'', template_id:'', fields:{} }
+    candidateForm.value = { full_name: '', template_id: '', fields: {} }
   }
-  candidateError.value = ''; showCandidateForm.value = true
+  candidateError.value = ''
+  showCandidateForm.value = true
 }
 
-function resetCandidateForm() { showCandidateForm.value = false; editingCandidate.value = null; candidateError.value = '' }
+function resetCandidateForm() {
+  showCandidateForm.value = false
+  editingCandidate.value = null
+  candidateError.value = ''
+}
 
 async function submitCandidate() {
   candidateError.value = ''
   if (!candidateForm.value.full_name.trim()) { candidateError.value = 'ФИО обязательно'; return }
   if (!editingCandidate.value && !candidateForm.value.template_id) { candidateError.value = 'Выберите шаблон'; return }
   try {
-    if (editingCandidate.value) await store.updateCandidate(editingCandidate.value.id, { full_name: candidateForm.value.full_name, fields: candidateForm.value.fields })
-    else await store.createCandidate({ full_name: candidateForm.value.full_name, template_id: Number(candidateForm.value.template_id), fields: candidateForm.value.fields })
+    if (editingCandidate.value) {
+      await store.updateCandidate(editingCandidate.value.id, { full_name: candidateForm.value.full_name, fields: candidateForm.value.fields })
+    } else {
+      const res = await store.createCandidate({ full_name: candidateForm.value.full_name, template_id: Number(candidateForm.value.template_id), fields: candidateForm.value.fields })
+      resetCandidateForm()
+      return
+    }
     resetCandidateForm()
-  } catch (e) { candidateError.value = e.response?.data?.detail || 'Ошибка' }
+  } catch (e) {
+    candidateError.value = e.response?.data?.detail || 'Ошибка'
+  }
 }
 
-async function removeCandidate(id) { if (confirm('Удалить анкету?')) await store.removeCandidate(id) }
+function initials(name) { return name.split(' ').map(n => n[0]).join('').slice(0, 2).toUpperCase() }
+
+function formatDateShort(dt) {
+  return new Date(dt).toLocaleString('ru-RU', { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' })
+}
 
 let searchTimer = null
-function onSearch() { clearTimeout(searchTimer); searchTimer = setTimeout(() => store.fetchCandidates(search.value, filterTemplate.value || null), 400) }
+function onSearch() {
+  clearTimeout(searchTimer)
+  searchTimer = setTimeout(() => store.fetchCandidates(search.value, filterTemplate.value || null), 400)
+}
 
-function formatDate(dt) { return new Date(dt).toLocaleString('ru-RU', { day:'2-digit', month:'2-digit', year:'numeric', hour:'2-digit', minute:'2-digit' }) }
-
-onMounted(async () => { await store.fetchTemplates(); await store.fetchCandidates() })
+onMounted(async () => {
+  await store.fetchTemplates()
+  await store.fetchCandidates()
+})
 </script>
 
 <style scoped>
-.cand-card { transition: border-color 0.2s; }
-.cand-card:hover { border-color: rgba(110,231,183,0.2); }
-.cand-top { display:flex; align-items:flex-start; justify-content:space-between; gap:12px; }
-.cand-fields { display:grid; grid-template-columns:repeat(2,1fr); gap:4px 16px; }
-@media (max-width:500px) { .cand-fields { grid-template-columns:1fr; } }
-.cand-field { font-size:13px; }
-.cand-field-label { color:var(--text-muted); }
-.cand-field-value { color:var(--text-secondary); margin-left:4px; }
-.card-actions { display:flex; gap:6px; flex-shrink:0; }
+.candidates-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.candidate-card {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 14px 16px;
+  background: var(--bg-surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  cursor: pointer;
+  transition: all 0.18s ease;
+}
+
+.candidate-card:hover {
+  border-color: rgba(110,231,183,0.25);
+  transform: translateX(2px);
+  box-shadow: var(--shadow);
+}
+
+.candidate-avatar {
+  width: 42px; height: 42px; border-radius: 50%;
+  background: var(--accent-dim); color: var(--accent);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 14px; font-weight: 700; flex-shrink: 0;
+}
+
+.candidate-info { flex: 1; min-width: 0; }
+
+.candidate-name {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.candidate-preview {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 6px;
+}
+
+.preview-item {
+  font-size: 12px;
+  color: var(--text-secondary);
+}
+
+.preview-label {
+  color: var(--text-muted);
+  margin-right: 2px;
+}
+
+.candidate-date {
+  font-size: 11px;
+  color: var(--text-muted);
+  flex-shrink: 0;
+  white-space: nowrap;
+}
+
+.candidate-arrow {
+  color: var(--text-muted);
+  flex-shrink: 0;
+  transition: color 0.15s, transform 0.15s;
+}
+
+.candidate-card:hover .candidate-arrow {
+  color: var(--accent);
+  transform: translateX(3px);
+}
+
+.photo-type-info {
+  font-size: 12px;
+  color: var(--text-muted);
+  background: var(--bg-elevated);
+  border-radius: var(--radius-sm);
+  padding: 8px 12px;
+  border: 1px solid var(--border);
+}
 </style>
