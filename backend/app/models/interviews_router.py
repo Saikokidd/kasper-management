@@ -1,5 +1,4 @@
 from fastapi import APIRouter, Depends, HTTPException, Query, UploadFile, File
-from fastapi.responses import FileResponse
 from sqlalchemy.orm import Session
 from typing import List, Optional
 import os, shutil, uuid
@@ -11,7 +10,8 @@ from app.models.user import User, UserRole
 
 router = APIRouter(prefix="/api/interviews", tags=["interviews"])
 
-MEDIA_DIR = "/home/kasper/kasper-management/media"
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+MEDIA_DIR = os.path.join(BASE_DIR, "media")
 
 @router.get("", response_model=List[InterviewOut])
 def list_interviews(
@@ -98,27 +98,25 @@ async def upload_photo(
     interview = db.query(Interview).filter(Interview.id == interview_id).first()
     if not interview:
         raise HTTPException(status_code=404, detail="Не найдено")
+
     os.makedirs(MEDIA_DIR, exist_ok=True)
     ext = os.path.splitext(file.filename)[1]
     unique_name = f"interview_{interview_id}_{uuid.uuid4().hex}{ext}"
     file_path = os.path.join(MEDIA_DIR, unique_name)
+
     with open(file_path, "wb") as f:
         shutil.copyfileobj(file.file, f)
+
+    # Удаляем старое фото если было
     if interview.photo_path:
         old_path = os.path.join(MEDIA_DIR, interview.photo_path)
         if os.path.exists(old_path):
             os.remove(old_path)
+
     interview.photo_path = unique_name
     db.commit()
     db.refresh(interview)
     return interview
-
-@router.get("/photo/{filename}")
-def get_photo(filename: str):
-    file_path = os.path.join(MEDIA_DIR, filename)
-    if not os.path.exists(file_path):
-        raise HTTPException(status_code=404, detail="Файл не найден")
-    return FileResponse(file_path)
 
 @router.delete("/{interview_id}")
 def delete_interview(

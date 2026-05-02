@@ -5,7 +5,7 @@ from app.schemas.user import UserOut
 
 class InterviewCreate(BaseModel):
     full_name: str
-    username: Optional[str] = None
+    username: Optional[str] = None       # Telegram
     instagram: Optional[str] = None
     tiktok: Optional[str] = None
     phone: Optional[str] = None
