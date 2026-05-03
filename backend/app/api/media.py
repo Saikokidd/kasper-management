@@ -11,8 +11,8 @@ from app.models.user import User, UserRole
 
 router = APIRouter(prefix="/api/media", tags=["media"])
 
-BASE_DIR = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-MEDIA_DIR = os.path.join(BASE_DIR, "media")
+
+MEDIA_DIR = "/home/kasper/kasper-management/media"
 
 @router.post("/upload", response_model=MediaFileOut)
 async def upload_file(

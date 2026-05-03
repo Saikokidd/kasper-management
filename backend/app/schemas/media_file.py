@@ -9,6 +9,7 @@ class MediaFileOut(BaseModel):
     entity_type: str
     entity_id: int
     filename: str
+    path: str
     size: int
     available: bool
 
