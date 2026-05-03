@@ -3,5 +3,5 @@ from .interview import InterviewCreate, InterviewUpdate, InterviewOut
 from .inscription import InscriptionCreate, InscriptionUpdate, InscriptionOut
 from .form_template import FormTemplateCreate, FormTemplateUpdate, FormTemplateOut
 from .candidate import CandidateCreate, CandidateUpdate, CandidateOut
-from .task import TaskTemplateCreate, TaskTemplateOut, TaskCreate, TaskComplete, TaskOut
+from .task import TaskCreate, TaskComplete, TaskOut
 from .media_file import MediaFileOut

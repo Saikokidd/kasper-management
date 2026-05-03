@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, String, Text, DateTime, ForeignKey, Enum, Boolean
+from sqlalchemy import Column, Integer, String, Text, DateTime, ForeignKey, Enum, Table
 from sqlalchemy.orm import relationship
 from sqlalchemy.sql import func
 from app.database import Base
@@ -13,14 +13,13 @@ class TaskStatus(str, enum.Enum):
     pending = "pending"
     done = "done"
 
-class TaskTemplate(Base):
-    __tablename__ = "task_templates"
-
-    id = Column(Integer, primary_key=True, index=True)
-    name = Column(String, nullable=False)
-    description = Column(Text, nullable=True)
-    created_by_id = Column(Integer, ForeignKey("users.id"), nullable=False)
-    created_by = relationship("User", foreign_keys=[created_by_id])
+# Таблица мультиназначений
+task_assignments = Table(
+    'task_assignments',
+    Base.metadata,
+    Column('task_id', Integer, ForeignKey('tasks.id', ondelete='CASCADE'), primary_key=True),
+    Column('user_id', Integer, ForeignKey('users.id', ondelete='CASCADE'), primary_key=True),
+)
 
 class Task(Base):
     __tablename__ = "tasks"
@@ -38,11 +37,8 @@ class Task(Base):
     created_by_id = Column(Integer, ForeignKey("users.id"), nullable=False)
     created_by = relationship("User", foreign_keys=[created_by_id])
 
-    assigned_to_id = Column(Integer, ForeignKey("users.id"), nullable=False)
-    assigned_to = relationship("User", foreign_keys=[assigned_to_id])
-
-    template_id = Column(Integer, ForeignKey("task_templates.id"), nullable=True)
-    template = relationship("TaskTemplate")
+    # Мультиназначение
+    assignees = relationship("User", secondary=task_assignments, lazy="joined")
 
     completion_comment = Column(Text, nullable=True)
-    media_url = Column(String, nullable=True)
+    completion_media = Column(String(500), nullable=True)

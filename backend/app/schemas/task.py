@@ -1,29 +1,15 @@
 from pydantic import BaseModel
 from datetime import datetime
-from typing import Optional
+from typing import Optional, List
 from app.models.task import TaskType, TaskStatus
 from app.schemas.user import UserOut
-
-class TaskTemplateCreate(BaseModel):
-    name: str
-    description: Optional[str] = None
-
-class TaskTemplateOut(BaseModel):
-    id: int
-    name: str
-    description: Optional[str]
-    created_by: UserOut
-
-    class Config:
-        from_attributes = True
 
 class TaskCreate(BaseModel):
     title: str
     description: Optional[str] = None
     type: TaskType = TaskType.daily
-    assigned_to_id: int
+    assigned_to_ids: List[int]  # мультиназначение
     due_date: Optional[datetime] = None
-    template_id: Optional[int] = None
 
 class TaskComplete(BaseModel):
     completion_comment: Optional[str] = None
@@ -37,10 +23,9 @@ class TaskOut(BaseModel):
     type: TaskType
     status: TaskStatus
     created_by: UserOut
-    assigned_to: UserOut
-    template: Optional[TaskTemplateOut]
+    assignees: List[UserOut]
     completion_comment: Optional[str]
-    media_url: Optional[str]
+    completion_media: Optional[str]
 
     class Config:
         from_attributes = True
