@@ -8,3 +8,4 @@ from .media_file import MediaFile
 from .ad import Ad
 from .job_post import JobPost
 from .tiktok_stream import TiktokStream
+from .tiktok_token import TiktokToken
