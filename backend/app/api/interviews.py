@@ -11,7 +11,7 @@ from app.models.user import User, UserRole
 
 router = APIRouter(prefix="/api/interviews", tags=["interviews"])
 
-MEDIA_DIR = "/home/kasper/kasper-management/media"
+MEDIA_DIR = os.getenv("MEDIA_DIR", "/home/kasper/kasper-management/media")
 
 @router.get("", response_model=List[InterviewOut])
 def list_interviews(

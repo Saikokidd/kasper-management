@@ -12,7 +12,7 @@ from app.api.deps import get_current_user, require_pult_or_admin
 
 router = APIRouter(prefix="/api/tasks", tags=["tasks"])
 
-MEDIA_DIR = "/home/kasper/kasper-management/media"
+MEDIA_DIR = os.getenv("MEDIA_DIR", "/home/kasper/kasper-management/media")
 
 @router.get("", response_model=List[TaskOut])
 def list_tasks(

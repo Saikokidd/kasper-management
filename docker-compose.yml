@@ -1,0 +1,30 @@
+services:
+  backend:
+    build: ./backend
+    container_name: kasper_backend
+    restart: unless-stopped
+    ports:
+      - "8000:8000"
+    env_file:
+      - ./backend/.env.production
+    volumes:
+      - /home/kasper/kasper-management/media:/media
+    environment:
+      - MEDIA_DIR=/media
+    networks:
+      - kasper_net
+
+  frontend:
+    build: ./frontend
+    container_name: kasper_frontend
+    restart: unless-stopped
+    ports:
+      - "80:80"
+    depends_on:
+      - backend
+    networks:
+      - kasper_net
+
+networks:
+  kasper_net:
+    driver: bridge

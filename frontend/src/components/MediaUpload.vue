@@ -60,7 +60,7 @@ const props = defineProps({
   entityId: { type: Number, required: true },
 })
 
-const API = 'http://10.0.0.2:8000'
+const API = import.meta.env.VITE_API_URL
 const auth = useAuthStore()
 
 const files = ref([])

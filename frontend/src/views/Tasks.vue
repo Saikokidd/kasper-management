@@ -198,7 +198,7 @@ import axios from 'axios'
 
 const store = useTasksStore()
 const auth = useAuthStore()
-const API = 'http://10.0.0.2:8000'
+const API = import.meta.env.VITE_API_URL
 
 const tab = ref('active')
 const period = ref('')

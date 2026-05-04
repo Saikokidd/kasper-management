@@ -12,7 +12,7 @@ from app.models.user import User, UserRole
 router = APIRouter(prefix="/api/media", tags=["media"])
 
 
-MEDIA_DIR = "/home/kasper/kasper-management/media"
+MEDIA_DIR = os.getenv("MEDIA_DIR", "/home/kasper/kasper-management/media")
 
 @router.post("/upload", response_model=MediaFileOut)
 async def upload_file(

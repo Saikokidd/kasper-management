@@ -185,7 +185,7 @@ import axios from 'axios'
 
 const store = useJobPostsStore()
 const auth = useAuthStore()
-const API = 'http://10.0.0.2:8000'
+const API = import.meta.env.VITE_API_URL
 
 const platforms = [
   { value: 'olx',    icon: '🟠', label: 'OLX' },

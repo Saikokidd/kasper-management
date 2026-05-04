@@ -24,7 +24,7 @@ app.add_middleware(
 )
 
 # Статические файлы — ПЕРВЫМ делом до роутеров
-MEDIA_DIR = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))), "media")
+MEDIA_DIR = os.getenv("MEDIA_DIR", os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))), "media"))
 os.makedirs(MEDIA_DIR, exist_ok=True)
 app.mount("/media", StaticFiles(directory=MEDIA_DIR), name="media")
 

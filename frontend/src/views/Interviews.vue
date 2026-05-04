@@ -313,7 +313,7 @@ import { useAuthStore } from '../stores/auth'
 const store = useInterviewsStore()
 const auth = useAuthStore()
 
-const API = 'http://10.0.0.2:8000'
+const API = import.meta.env.VITE_API_URL
 
 const view = ref('scheduled')
 const showForm = ref(false)
