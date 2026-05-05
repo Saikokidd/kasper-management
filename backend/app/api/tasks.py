@@ -37,7 +37,7 @@ def list_tasks(
     return q.order_by(Task.due_date.asc().nullslast(), Task.created_at.desc()).all()
 
 @router.post("", response_model=TaskOut)
-def create_task(
+async def create_task(
     data: TaskCreate,
     db: Session = Depends(get_db),
     current_user: User = Depends(require_pult_or_admin)
@@ -58,6 +58,14 @@ def create_task(
     db.add(task)
     db.commit()
     db.refresh(task)
+
+    # Уведомление в Telegram
+    try:
+        from app.bot.notifications import notify_task_assigned
+        await notify_task_assigned(task, assignees)
+    except Exception:
+        pass
+
     return task
 
 @router.post("/{task_id}/complete", response_model=TaskOut)

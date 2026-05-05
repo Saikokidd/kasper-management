@@ -1,6 +1,7 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
+from contextlib import asynccontextmanager
 import os
 from app.api.auth import router as auth_router
 from app.api.interviews import router as interviews_router
@@ -13,8 +14,32 @@ from app.api.ads import router as ads_router
 from app.api.job_posts import router as job_posts_router
 from app.api.tiktok_streams import router as tiktok_streams_router
 from app.api.tiktok import router as tiktok_router
+from app.config import settings
 
-app = FastAPI(title="Kasper Management API")
+bot_app = None
+scheduler = None
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    global bot_app, scheduler
+    if settings.TELEGRAM_BOT_TOKEN:
+        from app.bot.bot import create_bot
+        from app.bot.scheduler import create_scheduler
+        bot_app = create_bot()
+        await bot_app.initialize()
+        await bot_app.start()
+        await bot_app.updater.start_polling()
+        scheduler = create_scheduler()
+        scheduler.start()
+    yield
+    if bot_app:
+        await bot_app.updater.stop()
+        await bot_app.stop()
+        await bot_app.shutdown()
+    if scheduler:
+        scheduler.shutdown()
+
+app = FastAPI(title="Kasper Management API", lifespan=lifespan)
 
 app.add_middleware(
     CORSMiddleware,
@@ -24,7 +49,6 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# Статические файлы — ПЕРВЫМ делом до роутеров
 MEDIA_DIR = os.getenv("MEDIA_DIR", os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))), "media"))
 os.makedirs(MEDIA_DIR, exist_ok=True)
 app.mount("/media", StaticFiles(directory=MEDIA_DIR), name="media")

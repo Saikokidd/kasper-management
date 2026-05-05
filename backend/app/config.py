@@ -9,7 +9,10 @@ class Settings(BaseSettings):
     TIKTOK_CLIENT_SECRET: str = ""
     TIKTOK_REDIRECT_URI: str = ""
 
+    TELEGRAM_BOT_TOKEN: str = ""
+
     class Config:
         env_file = ".env"
+        extra = "allow"
 
 settings = Settings()
